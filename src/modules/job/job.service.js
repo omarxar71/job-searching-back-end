@@ -3,7 +3,7 @@ import Job from "../../DB/Job/job.model.js"
 export const allJobs = async (req ,res , next)=>{
     //still will do the pagination
     const jobs = await Job.find()
-    return res.status(200).json({message : "found all jobs" , jobs})
+    return res.status(200).json({message : "found all jobs" ,data: jobs})
 }
 export const postJob = async (req ,res , next)=>{
     const {title ,description,requirements,salary,jobType} = req.body
@@ -72,11 +72,17 @@ export const applyForJob = async(req , res , next)=>{
         return res.status(400).json({message : "you already applied for this job"})
     findJob.applicants.push({jobSeeker : req.user.id})
     await findJob.save()
-   
     const application = await Applications.create( {resume:req.file.path , coverLetter , job:jobId , applicant:req.user.id})
     if(!application)
         return res.status(400).json({message : "could not apply"})
     return res.status(200).json({message : "applied to the job"})
+}
+export const findOneJob = async (req, res , next )=>{
+    const {id}= req.params
+    const job = await Job.findById( id)
+    if(!job)
+        return res.status(404).json({message : "not found job"})
+    return res.status(200).json({message :"found job" ,job: job})
 }
 
 // user preview his applications 
